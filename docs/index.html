@@ -69,8 +69,6 @@ a{color:var(--accent);word-break:break-all}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:500;background:var(--info-soft);color:var(--info);white-space:nowrap}
 .chip.crit{background:var(--crit-soft);color:var(--crit)} .chip.warn{background:var(--warn-soft);color:var(--warn)}
 .chip.good{background:var(--good-soft);color:var(--good)} .chip.acc{background:var(--accent-soft);color:var(--accent)}
-form.search{display:grid;grid-template-columns:1fr auto;gap:8px}
-form.search .row2{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
 input,select{font:inherit;font-size:14px;padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);min-width:0}
 #url{font-family:var(--f-mono)}
 #competitors{flex:1 1 300px;font-family:var(--f-mono)}
@@ -182,9 +180,6 @@ svg.lc .gl{stroke:var(--line);stroke-width:1}
 .lvl{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .lvl.urgent{border-color:var(--crit);color:var(--crit);background:var(--crit-soft)}
 .setup{display:flex;flex-direction:column;gap:12px}
-.sitebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.sitebar label{font-size:13.5px;color:var(--muted)}
-.sitebar select{flex:1 1 260px;font-family:var(--f-mono)}
 .setup .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 @media print{
   body{background:#fff;padding-block:0}
@@ -231,45 +226,112 @@ details summary{font-family:var(--f-mono)}
 @keyframes blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){#ptext::after{animation:none}.btn,.btn2{transition:none}}
 @media print{body::after{display:none}.panel,.pcard,.qrow{box-shadow:none}}
+
+/* ── 三段式畫面：開始 → 載入 → 報告 ── */
+.screen{min-height:min(82vh,760px);display:grid;place-items:center;position:relative;padding-block:24px}
+.screen-tools{position:absolute;top:0;right:0}
+.title-card,.load-card{width:min(640px,100%);display:flex;flex-direction:column;gap:16px;padding:32px 28px}
+.eyebrow{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.18em;color:var(--accent)}
+.title{font-family:var(--f-disp);font-weight:400;font-size:44px;line-height:1.2;letter-spacing:.04em;text-wrap:balance;text-shadow:4px 4px 0 var(--accent-soft)}
+.lead{color:var(--muted);font-size:15.5px}
+#sform{display:flex;flex-direction:column;gap:10px}
+.lbl{font-family:var(--f-disp);font-size:16.5px;letter-spacing:.04em}
+.inrow{display:grid;grid-template-columns:1fr auto;gap:10px}
+.inrow input{font-size:17px;padding:14px 16px}
+.inrow .btn{padding:0 26px;font-size:19px}
+.adv summary{font-family:var(--f-mono);color:var(--muted);cursor:pointer;font-size:13.5px}
+.advrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.advrow input{flex:1 1 260px}
+.press{font-family:var(--f-disp);text-align:center;letter-spacing:.3em;color:var(--accent);font-size:16.5px;animation:blink 1.2s steps(1) infinite}
+.notice[role=alert]:empty{display:none}
+.notice.err{color:var(--crit)}
+.lhost{font-size:22px;word-break:break-all}
+.lhost::before{display:none}
+.track{position:relative;padding-top:30px}
+.bigbar{height:30px;border:3px solid var(--frame);background:var(--surface2);padding:3px}
+.bigbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s steps(6);-webkit-mask:repeating-linear-gradient(90deg,#000 0 12px,transparent 12px 16px);mask:repeating-linear-gradient(90deg,#000 0 12px,transparent 12px 16px)}
+.runner{position:absolute;top:0;left:0;width:3px;height:3px;transform:translateX(-50%);transition:left .4s steps(6);animation:hop .5s steps(2) infinite}
+@keyframes hop{50%{margin-top:-3px}}
+.lmeta{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted)}
+.lmeta b{color:var(--ink);font-family:var(--f-disp);font-weight:400;font-size:22px}
+#ldetail{flex:1;text-align:center}
+.stages{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14.5px}
+.stages li{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;color:var(--muted)}
+.stages li::before{content:"□";font-family:var(--f-mono)}
+.stages li.done{color:var(--ink)} .stages li.done::before{content:"■";color:var(--good)}
+.stages li.now{color:var(--ink);font-weight:700} .stages li.now::before{content:"▶";color:var(--accent);animation:blink .8s steps(1) infinite}
+.tip{border-top:2px dashed var(--line);padding-top:12px;font-size:14px;color:var(--muted);min-height:3.2em}
+.tip b{font-family:var(--f-mono);color:var(--accent);margin-right:6px}
+.load-card.done .eyebrow{color:var(--good)}
+@media (max-width:520px){.title{font-size:33px}.inrow{grid-template-columns:1fr}.inrow .btn{padding:12px}.title-card,.load-card{padding:24px 18px}}
+@media (prefers-reduced-motion:no-preference){
+  #report.reveal>*{animation:rise .45s both}
+  #report.reveal .t i{animation:grow .9s steps(10) both}
+}
+@keyframes rise{from{transform:translateY(10px)}}
+@keyframes grow{from{width:0}}
+@media (prefers-reduced-motion:reduce){.press,.stages li.now::before,.runner{animation:none}.bigbar i,.runner{transition:none}}
+@media print{#topbar .btn2,#rnotice{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top">
+<header class="top noprint-bar" id="topbar" hidden>
   <div class="brandrow">
     <div class="brand">GEO 技術監測系統</div>
     <div class="stamp">
-      <span>數據更新時間：<b class="num" id="stamp" style="color:var(--ink)">尚未檢測</b></span>
-      <button class="btn2 noprint" id="pdfbtn" type="button" disabled>下載 PDF</button>
-      <button class="btn2 noprint" id="jsonbtn" type="button" disabled>下載 JSON</button>
-      <button class="btn2 noprint" id="themebtn" type="button">深色／淺色</button>
+      <span>數據更新時間：<b class="num" id="stamp" style="color:var(--ink)">—</b></span>
+      <button class="btn2 noprint" id="restart" type="button">◀ 重新開始</button>
+      <button class="btn2 noprint" id="pdfbtn" type="button">下載 PDF</button>
+      <button class="btn2 noprint" id="jsonbtn" type="button">下載 JSON</button>
+      <button class="btn2 noprint themebtn" type="button">深色／淺色</button>
     </div>
   </div>
-  <div class="sitebar noprint" id="sitebar" hidden>
-    <label for="site">選擇網站</label>
-    <select id="site" name="site"></select>
-  </div>
-  <form class="search noprint" id="sform" autocomplete="off">
-    <input id="url" name="url" type="text" inputmode="url" placeholder="輸入網址，例如 https://www.your-site.com" aria-label="要檢測的網址" required>
-    <button class="btn" id="go" type="submit">開始檢測</button>
-    <div class="row2">
-      <input id="competitors" name="competitors" type="text" placeholder="競品網址（選填，最多 3 個，用逗號分隔）" aria-label="競品網址">
-      <select id="maxPages" name="maxPages" aria-label="最多爬取頁數">
-        <option value="50">最多 50 頁</option>
-        <option value="100" selected>最多 100 頁</option>
-        <option value="200">最多 200 頁</option>
-        <option value="500">最多 500 頁</option>
-      </select>
-    </div>
-  </form>
-  <div class="progress noprint" id="progress" hidden>
-    <div class="bar"><i id="barfill"></i></div>
-    <span class="notice" id="ptext">準備中</span>
-  </div>
-  <p class="notice noprint" id="notice">輸入網址後按「開始檢測」。系統會爬取全站頁面、檢查技術 SEO 與 GEO 內容，並以 Claude 評估重點頁面，約需 1–5 分鐘。</p>
+  <p class="notice noprint" id="rnotice" role="status"></p>
 </header>
 
-<main id="report" class="wrap" style="gap:28px" hidden></main>
+<section class="screen" id="start" aria-labelledby="start-title">
+  <div class="screen-tools"><button class="btn2 themebtn" type="button">深色／淺色</button></div>
+  <div class="title-card panel">
+    <p class="eyebrow">GEO MONITOR · AI SEARCH READINESS</p>
+    <h1 class="title" id="start-title">GEO 技術監測系統</h1>
+    <p class="lead" id="lead">檢查網站的技術 SEO 與 GEO 內容，看看 AI 搜尋會不會引用你。</p>
+    <form id="sform" autocomplete="off">
+      <label for="url" class="lbl">▶ 輸入網址</label>
+      <div class="inrow">
+        <input id="url" name="url" type="text" inputmode="url" placeholder="www.your-site.com" required>
+        <button class="btn" id="go" type="submit">START</button>
+      </div>
+      <details class="adv" id="adv">
+        <summary>進階設定</summary>
+        <div class="advrow">
+          <input id="competitors" name="competitors" type="text" placeholder="競品網址（選填，最多 3 個，用逗號分隔）" aria-label="競品網址">
+          <select id="maxPages" name="maxPages" aria-label="最多爬取頁數">
+            <option value="50">最多 50 頁</option>
+            <option value="100" selected>最多 100 頁</option>
+            <option value="200">最多 200 頁</option>
+            <option value="500">最多 500 頁</option>
+          </select>
+        </div>
+      </details>
+    </form>
+    <p class="notice" id="notice" role="alert"></p>
+    <p class="press" aria-hidden="true">PRESS START</p>
+  </div>
+</section>
+
+<section class="screen" id="loading" hidden aria-live="polite">
+  <div class="load-card panel">
+    <p class="eyebrow" id="leyebrow">NOW LOADING</p>
+    <h2 class="lhost" id="lhost">—</h2>
+    <div class="track"><div class="bigbar"><i id="lbar"></i></div><span class="runner" id="runner" aria-hidden="true"></span></div>
+    <div class="lmeta num"><b id="lpct">0%</b><span id="ldetail">準備中</span><span id="ltime">00:00</span></div>
+    <ol class="stages" id="stages"></ol>
+    <p class="tip" id="ltip"></p>
+  </div>
+</section>
+
+<main id="report" class="wrap" hidden></main>
 </div>
 
 <script>
@@ -400,9 +462,7 @@ function renderReport(r) {
 
   const el = $("#report");
   el.innerHTML = h;
-  el.hidden = false;
   $("#stamp").textContent = fmtTime(r.finishedAt);
-  $("#pdfbtn").disabled = $("#jsonbtn").disabled = false;
   document.title = `GEO 報告｜${r.target.host}`;
   el.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => trackAction(b.dataset.act)));
   el.querySelectorAll(".filters button").forEach((b) => b.addEventListener("click", () => {
@@ -512,62 +572,181 @@ function prioritySection(r) {
     </tbody></table></div></section>`;
 }
 
-// 共用的工作輪詢
-async function runJob(url, body, startMsg) {
-  const note = $("#notice");
-  note.classList.remove("err");
-  document.querySelectorAll(".btn,[data-act]").forEach((b) => (b.disabled = true));
-  $("#progress").hidden = false;
-  $("#barfill").style.width = "3%";
-  try {
-    const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-    const { id, error } = await r.json();
-    if (!id) throw new Error(error || "無法開始");
-    note.textContent = startMsg;
-    while (true) {
-      await new Promise((ok) => setTimeout(ok, 1200));
-      const j = await (await fetch("/api/job?id=" + id)).json();
-      if (j.status === "done") return j.result;
-      if (j.status === "error" || j.error) throw new Error(j.error);
-      const p = j.progress || {};
-      $("#ptext").textContent = p.total ? `${p.step} ${p.done} / ${p.total}` : p.step;
-      const base = { "讀取 sitemap": 5, "爬取頁面": 10, "重測回應時間": 58, "測量載入速度": 62, "AI 內容評估": 70, "產生總評與建議": 88 }[p.step] ?? 50;
-      $("#barfill").style.width = (p.step === "爬取頁面" && p.total ? 10 + 48 * p.done / p.total : p.step === "AI 內容評估" && p.total ? 70 + 18 * p.done / p.total : p.total ? 5 + 90 * p.done / p.total : base) + "%";
-    }
-  } catch (err) {
-    note.textContent = "失敗：" + err.message;
-    note.classList.add("err");
-    return null;
-  } finally {
-    document.querySelectorAll(".btn,[data-act]").forEach((b) => (b.disabled = false));
-    $("#progress").hidden = true;
+// ── 畫面切換 ──
+const SCREENS = ["start", "loading", "report"];
+function show(name) {
+  for (const id of SCREENS) $("#" + id).hidden = id !== name;
+  $("#topbar").hidden = name !== "report";
+  window.scrollTo(0, 0);
+}
+
+// ── 載入畫面 ──
+const TIPS = [
+  "首段前兩句直接回答問題，AI 最容易整段引用。",
+  "用 Organization schema 標記品牌名稱、網址與社群帳號，AI 才能確認你是誰。",
+  "robots.txt 擋掉 GPTBot、PerplexityBot，AI 就讀不到你的網站。",
+  "每篇內容放上作者、資歷與更新日期，可信度會明顯提升。",
+  "比較表、條列重點、FAQ 區塊，都比長段落更容易被 AI 摘錄。",
+  "具體數字加上出處，比「業界領先」更容易被 AI 當作事實引用。",
+  "llms.txt 是給 AI 的網站導覽，列出核心頁面與一句話摘要。",
+];
+const SLIME = ["...XX...", "..XXXX..", ".XXXXXX.", "XX.XX.XX", "XXXXXXXX", "XXXXXXXX", "X.X..X.X"];
+function drawRunner() {
+  const px = 3, out = [];
+  SLIME.forEach((row, y) => [...row].forEach((c, x) => c === "X" && out.push(`${(x - 3) * px}px ${y * px}px 0 var(--accent)`)));
+  $("#runner").style.boxShadow = out.join(",");
+}
+let loadTimer = null;
+function startLoading(host, stages, eyebrow = "NOW LOADING") {
+  show("loading");
+  $(".load-card").classList.remove("done");
+  $("#leyebrow").textContent = eyebrow;
+  $("#lhost").textContent = host;
+  $("#stages").innerHTML = stages.map((st) => `<li>${esc(st.label)}</li>`).join("");
+  const t0 = Date.now();
+  let tip = Math.floor(Math.random() * TIPS.length);
+  const tick = () => {
+    const sec = Math.floor((Date.now() - t0) / 1000);
+    $("#ltime").textContent = `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
+    if (sec % 5 === 0) $("#ltip").innerHTML = `<b>TIP</b>${esc(TIPS[tip++ % TIPS.length])}`;
+  };
+  clearInterval(loadTimer);
+  tick();
+  loadTimer = setInterval(tick, 1000);
+  setLoading(stages, 0, 0, "準備中");
+}
+function setLoading(stages, idx, frac, detail) {
+  const pct = Math.min(100, Math.round(((idx + Math.min(frac, 1)) / stages.length) * 100));
+  $("#lbar").style.width = pct + "%";
+  $("#runner").style.left = `calc(${pct}% * 0.97 + 1.5%)`;
+  $("#lpct").textContent = pct + "%";
+  $("#ldetail").textContent = detail;
+  [...$("#stages").children].forEach((li, i) => { li.className = i < idx ? "done" : i === idx ? "now" : ""; });
+}
+async function finishLoading(stages) {
+  clearInterval(loadTimer);
+  setLoading(stages, stages.length, 0, "完成");
+  $(".load-card").classList.add("done");
+  $("#leyebrow").textContent = "STAGE CLEAR!";
+  await new Promise((ok) => setTimeout(ok, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 700));
+}
+
+// 各種工作的關卡，以及伺服器進度訊息對應到哪一關
+const SCAN_STAGES = (withComp) => [
+  { label: "連線網站", steps: ["開始"] },
+  { label: "讀取 robots.txt 與 sitemap", steps: ["讀取 sitemap"] },
+  { label: "爬取全站頁面", steps: ["爬取頁面", "重測回應時間"] },
+  { label: "測量載入速度", steps: ["測量載入速度"] },
+  { label: "AI 內容評估", steps: ["AI 內容評估", "產生總評與建議"] },
+  ...(withComp ? [{ label: "分析競品", prefix: "分析競品" }] : []),
+  { label: "產生報告", steps: [] },
+];
+const TRACK_STAGES = [{ label: "準備追蹤題目", steps: ["開始"] }, { label: "詢問各 AI 平台", steps: ["AI 平台追蹤"] }, { label: "統計提及與引用", steps: [] }];
+const PROMPT_STAGES = [{ label: "讀取網站資料", steps: ["開始"] }, { label: "Claude 產生追蹤題目", steps: ["Claude 產生追蹤題目"] }, { label: "儲存題目", steps: [] }];
+const stageOf = (stages, step) => stages.findIndex((st) => st.steps?.includes(step) || (st.prefix && step?.startsWith(st.prefix)));
+
+// 送出工作並輪詢進度，進度顯示在載入畫面
+async function runJob(url, body, host, stages, eyebrow) {
+  startLoading(host, stages, eyebrow);
+  const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const { id, error } = await r.json();
+  if (!id) throw new Error(error || "無法開始");
+  let idx = 0;
+  while (true) {
+    await new Promise((ok) => setTimeout(ok, 1000));
+    const j = await (await fetch("/api/job?id=" + id)).json();
+    if (j.status === "done") { await finishLoading(stages); return j.result; }
+    if (j.status === "error" || j.error) throw new Error(j.error || "工作失敗");
+    const p = j.progress || {};
+    const k = stageOf(stages, p.step);
+    if (k > idx) idx = k;
+    setLoading(stages, idx, p.total ? p.done / p.total : 0.3, p.total ? `${p.step} ${p.done} / ${p.total}` : p.step || "處理中");
   }
 }
+
+function presentReport(r, msg = "") {
+  renderReport(r);
+  show("report");
+  $("#rnotice").textContent = msg;
+  const el = $("#report");
+  el.classList.remove("reveal");
+  void el.offsetWidth;
+  el.classList.add("reveal");
+  [...el.children].forEach((c, i) => (c.style.animationDelay = Math.min(i, 8) * 70 + "ms"));
+  // 總分從 0 數上去
+  const num = el.querySelector(".ring .val b");
+  if (num && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const target = r.scores.overall, t0 = performance.now();
+    const step = (t) => { const k = Math.min(1, (t - t0) / 900); num.textContent = Math.round(target * k); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+}
+
+function backToStart(msg = "", isErr = false) {
+  clearInterval(loadTimer);
+  current = null;
+  document.title = "GEO 技術監測系統";
+  $("#report").innerHTML = "";
+  $("#url").value = "";
+  $("#competitors").value = "";
+  $("#notice").textContent = msg;
+  $("#notice").classList.toggle("err", isErr);
+  show("start");
+  $("#url").focus();
+}
+
+const hostFrom = (v) => v.trim().replace(/^https?:\/\//i, "").split(/[\/?#]/)[0].toLowerCase();
 
 async function trackAction(act) {
   if (!current) return;
-  const host = current.target.host;
-  const info = act === "prompts"
-    ? await runJob("/api/prompts", { host }, "Claude 正在產生追蹤題目，約需 1 分鐘。")
-    : await runJob("/api/track", { host }, "正在把題目送到各 AI 平台，約需數分鐘，請保持頁面開啟。");
-  if (info) {
-    Object.assign(current, info);
-    renderReport(current);
-    $("#notice").textContent = act === "prompts" ? "追蹤題目已產生，請檢查題目後再執行追蹤。" : "追蹤完成，結果已存檔。";
+  const keep = current;
+  const host = keep.target.host;
+  try {
+    const info = act === "prompts"
+      ? await runJob("/api/prompts", { host }, host, PROMPT_STAGES, "GENERATING PROMPTS")
+      : await runJob("/api/track", { host }, host, TRACK_STAGES, "ASKING AI PLATFORMS");
+    Object.assign(keep, info);
+    presentReport(keep, act === "prompts" ? "追蹤題目已產生，請檢查題目後再執行追蹤。" : "追蹤完成，結果已存檔。");
+  } catch (err) {
+    presentReport(keep, "失敗：" + err.message);
   }
 }
 
-// 檢測流程
+// ── 靜態前台：只讀匯出的報告 ──
+let staticIndex = null;
+async function openStatic(input) {
+  const host = hostFrom(input);
+  const stages = [{ label: "尋找報告" }, { label: "讀取檢測資料" }, { label: "繪製報告" }];
+  const site = staticIndex?.sites.find((x) => x.host === host || x.host === "www." + host || "www." + x.host === host);
+  if (!site) return backToStart(`還沒有 ${host} 的檢測報告。`, true);
+  startLoading(site.host, stages, "LOADING REPORT");
+  const pause = (ms) => new Promise((ok) => setTimeout(ok, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : ms));
+  await pause(350);
+  setLoading(stages, 1, 0, "下載報告資料");
+  const r = await fetch(`data/${encodeURIComponent(site.host)}.json`, { cache: "no-cache" });
+  if (!r.ok) return backToStart("報告讀取失敗，請稍後再試。", true);
+  const data = await r.json();
+  setLoading(stages, 2, 0, "繪製報告");
+  await pause(350);
+  await finishLoading(stages);
+  presentReport(data);
+}
+
+// ── 事件 ──
 $("#sform").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const r = await runJob("/api/scan", {
-    url: $("#url").value.trim(),
-    competitors: $("#competitors").value.split(/[,，\s]+/).filter(Boolean),
-    maxPages: Number($("#maxPages").value),
-  }, "檢測進行中，請保持這個頁面開啟。");
-  if (r) { renderReport(r); $("#notice").textContent = "檢測完成，結果已存檔。"; }
+  const url = $("#url").value.trim();
+  if (!url) return;
+  if (STATIC) return openStatic(url);
+  const competitors = $("#competitors").value.split(/[,，\s]+/).filter(Boolean);
+  try {
+    const r = await runJob("/api/scan", { url, competitors, maxPages: Number($("#maxPages").value) }, hostFrom(url), SCAN_STAGES(competitors.length > 0), "NOW LOADING");
+    presentReport(r);
+  } catch (err) {
+    backToStart("檢測失敗：" + err.message, true);
+  }
 });
-
+$("#restart").addEventListener("click", () => backToStart());
 $("#pdfbtn").addEventListener("click", () => window.print());
 $("#jsonbtn").addEventListener("click", () => {
   if (!current) return;
@@ -577,47 +756,26 @@ $("#jsonbtn").addEventListener("click", () => {
   a.click();
   URL.revokeObjectURL(a.href);
 });
-$("#themebtn").addEventListener("click", () => {
+document.querySelectorAll(".themebtn").forEach((b) => b.addEventListener("click", () => {
   const r = document.documentElement;
   const cur = r.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   r.dataset.theme = cur === "dark" ? "light" : "dark";
-});
+}));
 
-// 開啟時載入最近一次的報告
-async function loadStatic(host) {
-  const r = await fetch(`data/${encodeURIComponent(host)}.json`, { cache: "no-cache" });
-  if (!r.ok) throw new Error("找不到這個網站的報告");
-  renderReport(await r.json());
+// ── 啟動：一律從開始畫面進入，不帶出先前的網址或報告 ──
+drawRunner();
+if (STATIC) {
+  $("#lead").textContent = "輸入網址，查看網站的技術 SEO 與 GEO 檢測報告。";
+  $("#adv").hidden = true;
+  $("#go").textContent = "查看報告";
+  fetch("data/index.json", { cache: "no-cache" }).then((r) => r.json()).then((j) => {
+    staticIndex = j;
+    // 分享連結 #網域 直接打開該報告
+    const want = decodeURIComponent(location.hash.slice(1));
+    if (want) { history.replaceState(null, "", location.pathname); openStatic(want); }
+  }).catch(() => backToStart("報告清單讀取失敗，請重新整理頁面。", true));
 }
-
-(async () => {
-  try {
-    if (STATIC) {
-      $("#sform").hidden = true;
-      const idx = await (await fetch("data/index.json", { cache: "no-cache" })).json();
-      $("#notice").textContent = `報告匯出時間：${fmtTime(idx.exportedAt)}。`;
-      if (!idx.sites.length) { $("#notice").textContent = "目前沒有報告。"; return; }
-      const sel = $("#site");
-      sel.innerHTML = idx.sites.map((x) => `<option value="${esc(x.host)}">${esc(x.host)}（${x.overall} 分，${fmtTime(x.finishedAt)}）</option>`).join("");
-      const want = location.hash.slice(1);
-      if (idx.sites.some((x) => x.host === want)) sel.value = want;
-      $("#sitebar").hidden = idx.sites.length < 2;
-      sel.addEventListener("change", () => { history.replaceState(null, "", "#" + sel.value); loadStatic(sel.value).catch((e) => ($("#notice").textContent = e.message)); });
-      await loadStatic(sel.value);
-      return;
-    }
-    const hosts = await (await fetch("/api/hosts")).json();
-    if (!hosts.length) return;
-    const r = await fetch("/api/latest?host=" + encodeURIComponent(hosts[0]));
-    if (r.ok) {
-      const j = await r.json();
-      $("#url").value = j.target.url;
-      renderReport(j);
-    }
-  } catch (e) {
-    if (STATIC) $("#notice").textContent = "報告載入失敗：" + e.message;
-  }
-})();
+show("start");
 </script>
 </body>
 </html>
