@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { ROOT } from "./env.js";
+import { buildPriorities } from "./priorities.js";
 
 const DIR = path.join(ROOT, "data/scans");
 
@@ -29,7 +30,10 @@ export async function history(host) {
 export async function latest(host) {
   const h = await history(host);
   if (!h.length) return null;
-  return JSON.parse(await fs.readFile(path.join(DIR, host, h.at(-1).file), "utf8"));
+  const r = JSON.parse(await fs.readFile(path.join(DIR, host, h.at(-1).file), "utf8"));
+  // 舊版檢測結果沒有優先修復清單，依存檔資料補算
+  r.priorities ??= buildPriorities(r.issues, r.geo.items, r.geo.recommendations || []);
+  return r;
 }
 
 // 最近檢測過的網站排前面

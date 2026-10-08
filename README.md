@@ -52,6 +52,17 @@ npm run scan -- https://www.example.com --max=100 --competitors=a.com,b.com
 
 每次檢測結果存在 `data/scans/<網域>/`，報告會自動顯示歷次分數趨勢。
 
+## 前台報告（GitHub Pages）
+
+`docs/` 是給 GitHub Pages 的靜態報告頁，只顯示報告，不能在網頁上檢測。更新步驟：
+
+```bash
+npm run scan -- https://www.example.com
+npm run publish:site
+```
+
+`publish:site` 會把 `data/` 內每個網站最新的結果匯出到 `docs/`，然後 commit 並推上 GitHub，前台約 1 分鐘後更新。前台網址可以加 `#網域` 直接開某個網站，例如 `#www.sitevance.tw`。
+
 ## AI 平台追蹤
 
 1. 先檢測網站一次。
