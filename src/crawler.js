@@ -1,4 +1,6 @@
 import * as cheerio from "cheerio";
+import dns from "node:dns/promises";
+import net from "node:net";
 
 const UA = "Mozilla/5.0 (compatible; GEOMonitorBot/1.0)";
 const SKIP_EXT = /\.(pdf|jpe?g|png|gif|webp|svg|ico|zip|rar|mp4|mp3|wav|webm|css|js|json|xml|txt|docx?|xlsx?|pptx?)$/i;
@@ -188,11 +190,26 @@ export function analyzeHtml(html, pageUrl, host) {
   };
 }
 
+function privateIp(ip) {
+  if (net.isIPv6(ip)) return ip === "::1" || /^(fc|fd|fe80)/i.test(ip) || ip.startsWith("::ffff:") && privateIp(ip.slice(7));
+  const [a, b] = ip.split(".").map(Number);
+  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127);
+}
+
+// 只允許檢測公開網站，避免從主機打到內網服務
+async function assertPublic(url) {
+  const host = new URL(url).hostname.replace(/^\[|\]$/g, "");
+  const ips = net.isIP(host) ? [host] : (await dns.lookup(host, { all: true }).catch(() => [])).map((x) => x.address);
+  if (!ips.length) throw new Error(`找不到網域 ${host}`);
+  if (ips.some(privateIp)) throw new Error("不能檢測內部網路位址");
+}
+
 export async function crawl(startUrl, { maxPages = 100, concurrency = 6, onProgress = () => {} } = {}) {
   let input = startUrl.trim();
   if (!/^https?:\/\//i.test(input)) input = "https://" + input;
   input = normalize(input);
   if (!input) throw new Error("網址格式不正確");
+  await assertPublic(input);
   const home = await fetchPage(input);
   if (!home.status || home.status >= 400) throw new Error(`無法開啟首頁（${home.error || "HTTP " + home.status}）`);
   const origin = new URL(home.finalUrl).origin;

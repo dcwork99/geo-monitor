@@ -50,8 +50,31 @@ async function readBody(req) {
   return s ? JSON.parse(s) : {};
 }
 
+// 登入保護：設定 AUTH_PASSWORD 後，所有頁面與 API 都要帳密（HTTP Basic Auth）
+const AUTH_USER = process.env.AUTH_USER || "admin";
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || "";
+if (process.env.NODE_ENV === "production" && AUTH_PASSWORD.length < 10) {
+  console.error("正式環境必須在 .env 設定 AUTH_PASSWORD（至少 10 個字元）");
+  process.exit(1);
+}
+const safeEqual = (a, b) => {
+  const x = Buffer.from(a), y = Buffer.from(b);
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+};
+function authorized(req) {
+  if (!AUTH_PASSWORD) return true;
+  const m = (req.headers.authorization || "").match(/^Basic (.+)$/);
+  if (!m) return false;
+  const [user, ...rest] = Buffer.from(m[1], "base64").toString().split(":");
+  return safeEqual(user, AUTH_USER) && safeEqual(rest.join(":"), AUTH_PASSWORD);
+}
+
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, "http://localhost");
+  if (!authorized(req)) {
+    res.writeHead(401, { "www-authenticate": 'Basic realm="GEO Monitor", charset="UTF-8"', "content-type": "text/plain; charset=utf-8" });
+    return res.end("需要登入");
+  }
   try {
     if (req.method === "POST" && u.pathname === "/api/scan") {
       const { url, maxPages = 100, competitors = [] } = await readBody(req);
@@ -113,4 +136,4 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => console.log(`GEO 技術監測系統：http://localhost:${PORT}`));
+server.listen(PORT, process.env.HOST || undefined, () => console.log(`GEO 技術監測系統：http://localhost:${PORT}`));
