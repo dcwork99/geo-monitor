@@ -32,6 +32,13 @@ export async function latest(host) {
   return JSON.parse(await fs.readFile(path.join(DIR, host, h.at(-1).file), "utf8"));
 }
 
+// 最近檢測過的網站排前面
 export async function listHosts() {
-  try { return (await fs.readdir(DIR, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name); } catch { return []; }
+  let dirs = [];
+  try { dirs = (await fs.readdir(DIR, { withFileTypes: true })).filter((d) => d.isDirectory()).map((d) => d.name); } catch { return []; }
+  const withTime = await Promise.all(dirs.map(async (h) => {
+    const files = (await fs.readdir(path.join(DIR, h))).filter((f) => f.endsWith(".json")).sort();
+    return { h, last: files.at(-1) || "" };
+  }));
+  return withTime.sort((a, b) => b.last.localeCompare(a.last)).map((x) => x.h);
 }

@@ -4,7 +4,8 @@
   "description": "GEO 技術監測系統：爬取網站並檢測技術 SEO 與 GEO 內容",
   "scripts": {
     "start": "node server.js",
-    "scan": "node scan.js"
+    "scan": "node scan.js",
+    "track": "node track.js"
   },
   "license": "ISC",
   "type": "module",

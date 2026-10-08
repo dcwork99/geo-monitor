@@ -29,7 +29,8 @@ const PageEval = z.object({
 
 const SiteEval = z.object({
   verdict: z.string().describe("給客戶看的一句話總評，繁體中文，40 字內"),
-  recommendations: z.array(z.object({ title: z.string(), detail: z.string(), impact: z.enum(["高", "中", "低"]) })).describe("5 項優先改善建議"),
+  recommendations: z.array(z.object({ title: z.string(), detail: z.string(), impact: z.enum(["高", "中", "低"]), effort: z.enum(["小", "中", "大"]), gap: z.string().describe("這項改善補上的 AI 疑慮或缺口，15 字內") }))
+    .describe("5 項優先改善建議，不要重複檢測摘要中已列出的技術問題"),
   prompts: z.array(z.object({ prompt: z.string(), intent: z.string(), targetPage: z.string(), action: z.string() }))
     .describe("10 個潛在客戶會問 AI、且這個網站應該被引用的問題；intent 為意圖分類；targetPage 為最適合回答的現有網址或「需新增頁面」；action 為讓 AI 引用的具體做法"),
 });

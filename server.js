@@ -5,6 +5,9 @@ import crypto from "node:crypto";
 import { ROOT } from "./src/env.js";
 import { runScan } from "./src/scan.js";
 import { latest, history, listHosts } from "./src/store.js";
+import { runTracking, summarizeTracking } from "./src/ai/track.js";
+import { loadPromptSet, generatePromptSet, templatePromptSet, promptFile, isPlaceholder } from "./src/ai/promptset.js";
+import { enabledProviders, PROVIDERS } from "./src/ai/providers.js";
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC = path.join(ROOT, "public");
@@ -15,6 +18,28 @@ const send = (res, code, body) => {
   res.writeHead(code, { "content-type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(body));
 };
+
+// 長時間工作（檢測、追蹤、產生題目）都用 job，前端輪詢進度
+function startJob(fn) {
+  const id = crypto.randomUUID();
+  const job = { id, status: "running", progress: { step: "開始" }, startedAt: Date.now() };
+  jobs.set(id, job);
+  fn((p) => (job.progress = p))
+    .then((r) => Object.assign(job, { status: "done", result: r }))
+    .catch((e) => Object.assign(job, { status: "error", error: e.message }));
+  return id;
+}
+
+const cleanHost = (h) => String(h || "").replace(/[^\w.-]/g, "");
+
+async function trackingInfo(host) {
+  const set = await loadPromptSet(host);
+  return {
+    tracking: await summarizeTracking(host),
+    promptSet: set ? { file: promptFile(host), brand: set.brand.name, count: set.prompts.filter((p) => !isPlaceholder(p)).length, placeholder: set.prompts.some(isPlaceholder) } : null,
+    providers: PROVIDERS.map((p) => ({ id: p.id, name: p.name, enabled: p.enabled() })),
+  };
+}
 
 async function readBody(req) {
   let s = "";
@@ -31,16 +56,35 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && u.pathname === "/api/scan") {
       const { url, maxPages = 100, competitors = [] } = await readBody(req);
       if (!url || typeof url !== "string") return send(res, 400, { error: "請輸入網址" });
-      const id = crypto.randomUUID();
-      const job = { id, status: "running", progress: { step: "開始" }, startedAt: Date.now() };
-      jobs.set(id, job);
-      runScan(url, {
-        maxPages: Math.min(Math.max(Number(maxPages) || 100, 10), 500),
-        competitors: (Array.isArray(competitors) ? competitors : []).filter((x) => typeof x === "string" && x.trim()).slice(0, 3),
-        onProgress: (p) => (job.progress = p),
-      })
-        .then((r) => Object.assign(job, { status: "done", result: r }))
-        .catch((e) => Object.assign(job, { status: "error", error: e.message }));
+      const id = startJob(async (onProgress) => {
+        const r = await runScan(url, {
+          maxPages: Math.min(Math.max(Number(maxPages) || 100, 10), 500),
+          competitors: (Array.isArray(competitors) ? competitors : []).filter((x) => typeof x === "string" && x.trim()).slice(0, 3),
+          onProgress,
+        });
+        return Object.assign(r, await trackingInfo(r.target.host));
+      });
+      return send(res, 202, { id });
+    }
+    if (req.method === "POST" && u.pathname === "/api/prompts") {
+      const host = cleanHost((await readBody(req)).host);
+      const id = startJob(async (onProgress) => {
+        onProgress({ step: "Claude 產生追蹤題目" });
+        try { await generatePromptSet(host); } catch (e) {
+          await templatePromptSet(host);
+          throw new Error(`Claude 產生失敗（${e.message}），已建立空白範本：${promptFile(host)}`);
+        }
+        return trackingInfo(host);
+      });
+      return send(res, 202, { id });
+    }
+    if (req.method === "POST" && u.pathname === "/api/track") {
+      const host = cleanHost((await readBody(req)).host);
+      const id = startJob(async (onProgress) => {
+        const r = await runTracking(host, { onProgress });
+        if (!r.ok) throw new Error("所有平台都失敗：" + r.errors.join("；"));
+        return trackingInfo(host);
+      });
       return send(res, 202, { id });
     }
     if (u.pathname === "/api/job") {
@@ -53,7 +97,7 @@ const server = http.createServer(async (req, res) => {
       const r = await latest(host.replace(/[^\w.-]/g, ""));
       if (!r) return send(res, 404, { error: "這個網站還沒有檢測紀錄" });
       r.history = await history(r.target.host);
-      return send(res, 200, r);
+      return send(res, 200, Object.assign(r, await trackingInfo(r.target.host)));
     }
     if (u.pathname === "/api/hosts") return send(res, 200, await listHosts());
 

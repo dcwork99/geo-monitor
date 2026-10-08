@@ -3,6 +3,7 @@ import { technicalIssues, geoItems, computeScores } from "./checks.js";
 import { pagespeed } from "./pagespeed.js";
 import { llmEnabled, evaluatePages, evaluateSite, MODEL } from "./llm.js";
 import { saveScan, history } from "./store.js";
+import { buildPriorities } from "./priorities.js";
 
 // 挑出最值得給 AI 評估的頁面：首頁 + 被最多內部連結指向的內容頁
 function pickKeyPages(c, n) {
@@ -68,6 +69,7 @@ export async function runScan(url, { maxPages = 100, competitors = [], onProgres
     scores: main.scores,
     issues: main.issues,
     geo: { items: main.geo, pages: main.pageEvals, summary: main.site?.verdict || "", recommendations: main.site?.recommendations || [], prompts: main.site?.prompts || [] },
+    priorities: buildPriorities(main.issues, main.geo, main.site?.recommendations || []),
     performance: main.perf,
     competitors: comp,
     llm: main.llm,

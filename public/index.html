@@ -13,6 +13,7 @@
   --accent:#0B6E8E; --accent-soft:#DCEFF5; --on-accent:#FFFFFF;
   --crit:#C23A2E; --crit-soft:#F9E3E0; --warn:#A8660B; --warn-soft:#FBEBD0; --info:#456A86; --info-soft:#E3ECF3; --good:#1E7F55; --good-soft:#DDF1E7;
   --comp:#8A97A3;
+  --p-aio:#3B6FD8; --p-chatgpt:#10A37F; --p-gemini:#7B5BD6; --p-claude:#C6613F;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --f-disp:"Noto Serif TC","Songti TC",serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -22,12 +23,12 @@
   --bg:#0E161D; --surface:#16212A; --surface2:#1B2833; --ink:#E6EEF3; --muted:#93A5B3; --line:#2B3B48;
   --accent:#4FB7D6; --accent-soft:#17323D; --on-accent:#06222C;
   --crit:#F0736A; --crit-soft:#3B1F1F; --warn:#E3A24B; --warn-soft:#3A2E17; --info:#8FB3CC; --info-soft:#1C2E3B; --good:#5CC795; --good-soft:#173528;
-  --comp:#6F7F8C; color-scheme:dark}}
+  --comp:#6F7F8C; --p-aio:#7BA2F0; --p-chatgpt:#3CC79F; --p-gemini:#A78BF0; --p-claude:#E38B67; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E161D; --surface:#16212A; --surface2:#1B2833; --ink:#E6EEF3; --muted:#93A5B3; --line:#2B3B48;
   --accent:#4FB7D6; --accent-soft:#17323D; --on-accent:#06222C;
   --crit:#F0736A; --crit-soft:#3B1F1F; --warn:#E3A24B; --warn-soft:#3A2E17; --info:#8FB3CC; --info-soft:#1C2E3B; --good:#5CC795; --good-soft:#173528;
-  --comp:#6F7F8C; color-scheme:dark}
+  --comp:#6F7F8C; --p-aio:#7BA2F0; --p-chatgpt:#3CC79F; --p-gemini:#A78BF0; --p-claude:#E38B67; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
@@ -144,6 +145,33 @@ svg.lc .gl{stroke:var(--line);stroke-width:1}
 .when{font-family:var(--f-mono);font-size:12.5px;color:var(--accent)}
 .foot{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
 #report[hidden]{display:none}
+.pcards{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:14px}
+@media (max-width:1050px){.pcards{grid-template-columns:repeat(2,1fr)}}
+.kv>span:first-child{white-space:nowrap}
+@media (max-width:520px){.pcards{grid-template-columns:1fr}}
+.pcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--pc,var(--accent));border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.pcard h3{display:flex;align-items:center;gap:8px;font-size:17px}
+.pcard h3 i{width:10px;height:10px;border-radius:50%;background:var(--pc,var(--accent));flex:none}
+.kv{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;font-size:14px}
+.kv b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:15px;text-align:right}
+.pcard .lead{text-align:right;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.d{font-size:12px;font-family:var(--f-mono);padding:1px 8px;border-radius:99px;white-space:nowrap;justify-self:start}
+.d.up{background:var(--good-soft);color:var(--good)} .d.dn{background:var(--crit-soft);color:var(--crit)} .d.eq{background:var(--surface2);color:var(--muted)}
+.layer{display:flex;flex-direction:column;gap:10px}
+.layer-hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lbadge{font-family:var(--f-mono);font-weight:700;font-size:13px;padding:3px 10px;border-radius:6px;background:var(--accent);color:var(--on-accent)}
+.layer-hd h3{font-size:16px;flex:1;min-width:200px}
+.lstats{display:flex;gap:6px 18px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.lstats b{color:var(--ink);font-family:var(--f-mono)}
+.qrow{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.qrow .q{font-weight:500;font-size:14.5px}
+.qrow .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:700px){.qrow{grid-template-columns:1fr}.qrow .tags{justify-content:flex-start}}
+.chip.cite{background:var(--accent-soft);color:var(--accent)}
+.lvl{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.lvl.urgent{border-color:var(--crit);color:var(--crit);background:var(--crit-soft)}
+.setup{display:flex;flex-direction:column;gap:12px}
+.setup .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 @media print{
   body{background:#fff;padding-block:0}
   .noprint{display:none!important}
@@ -233,6 +261,8 @@ function renderReport(r) {
     </div>
   </div></section>`;
 
+  h += aiSections(r) + prioritySection(r);
+
   // 技術 SEO
   h += `<section class="sec"><div class="sec-head"><h2>技術 SEO 需改善項目</h2><p>共 ${issues.length} 類問題、${tot()} 處待修。先處理紅色項目，它們會直接影響收錄與 AI 爬蟲存取。</p></div>
   <div class="grid g4">
@@ -286,18 +316,10 @@ function renderReport(r) {
   } else h += `<div class="empty">${r.competitors.length ? "競品檢測失敗：" + esc(r.competitors.map((c) => c.host + "（" + c.error + "）").join("、")) : "這次沒有加入競品。在搜尋列下方填入最多 3 個競品網址，重新檢測即可產生比較。"}</div>`;
   h += `</section>`;
 
-  // AI 引用
-  h += `<section class="sec"><div class="sec-head"><h2>AI 引用率</h2><p>AI 爬蟲能不能讀到網站，是被引用的前提。</p></div><div class="grid g2">
-    <div class="panel"><h3 style="margin-bottom:10px">AI 爬蟲存取狀態（robots.txt）</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${r.crawl.aiBots.map((b) => `<span class="chip ${b.blocked ? "crit" : "good"}">${esc(b.bot)} ${b.blocked ? "被封鎖" : "可讀取"}</span>`).join("")}</div>
-      <p class="muted" style="font-size:13.5px;margin-top:10px">llms.txt：${r.crawl.llmsTxt ? "已提供" : "尚未提供"}　·　sitemap：${r.crawl.sitemapFound ? "已提供" : "找不到"}</p></div>
-    <div class="empty"><b>實際引用率尚未串接（第二階段）。</b><br>需要把下方的追蹤 prompts 定期送到 Perplexity、ChatGPT、Gemini、Google AI 總覽，統計回答中引用本站的比例。串接後這裡會顯示各平台引用率與趨勢。</div>
-  </div></section>`;
-
   // Prompts
   h += `<section class="sec"><div class="sec-head"><h2>AI prompts 與建議</h2><p>潛在客戶可能問 AI 的問題，以及要讓 AI 引用本站該怎麼做。</p></div>`;
-  h += r.geo.prompts.length ? `<div class="panel tw"><table><thead><tr><th>建議追蹤的 prompt</th><th>意圖</th><th>對應頁面</th><th>建議動作</th><th>引用狀態</th></tr></thead><tbody>
-    ${r.geo.prompts.map((p) => `<tr><td style="min-width:220px;font-weight:500">${esc(p.prompt)}</td><td>${esc(p.intent)}</td><td style="min-width:160px;font-size:13px;word-break:break-all">${esc(p.targetPage)}</td><td class="wide muted">${esc(p.action)}</td><td><span class="chip">未測試</span></td></tr>`).join("")}</tbody></table></div>`
+  h += r.geo.prompts.length ? `<div class="panel tw"><table><thead><tr><th>建議追蹤的 prompt</th><th>意圖</th><th>對應頁面</th><th>建議動作</th><th>狀態</th></tr></thead><tbody>
+    ${r.geo.prompts.map((p) => `<tr><td style="min-width:220px;font-weight:500">${esc(p.prompt)}</td><td>${esc(p.intent)}</td><td style="min-width:160px;font-size:13px;word-break:break-all">${esc(p.targetPage)}</td><td class="wide muted">${esc(p.action)}</td><td><span class="chip">${trackedSet(r).has(p.prompt) ? "追蹤中" : "未追蹤"}</span></td></tr>`).join("")}</tbody></table></div>`
     : `<div class="empty">這個區塊由 Claude 產生，目前 Claude 未啟用（${esc(r.llm.error || "未設定")}）。</div>`;
   h += `</section>`;
 
@@ -323,6 +345,7 @@ function renderReport(r) {
   $("#stamp").textContent = fmtTime(r.finishedAt);
   $("#pdfbtn").disabled = $("#jsonbtn").disabled = false;
   document.title = `GEO 報告｜${r.target.host}`;
+  el.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => trackAction(b.dataset.act)));
   el.querySelectorAll(".filters button").forEach((b) => b.addEventListener("click", () => {
     el.querySelectorAll(".filters button").forEach((x) => x.setAttribute("aria-pressed", x === b));
     el.querySelectorAll("#issues tr").forEach((tr) => (tr.hidden = !(b.dataset.f === "all" || tr.dataset.s === b.dataset.f)));
@@ -348,38 +371,138 @@ function trend(hist) {
   return s + "</svg>";
 }
 
-// 檢測流程
-$("#sform").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const url = $("#url").value.trim();
-  const competitors = $("#competitors").value.split(/[,，\s]+/).filter(Boolean);
+
+const PCOLOR = { aio: "var(--p-aio)", chatgpt: "var(--p-chatgpt)", gemini: "var(--p-gemini)", claude: "var(--p-claude)" };
+const fp = (v) => (v == null ? "—" : Math.round(v) + "%");
+function dchip(v, unit = "pp") {
+  if (v == null) return "<span></span>";
+  if (Math.abs(v) < 0.5) return `<span class="d eq">持平</span>`;
+  return `<span class="d ${v > 0 ? "up" : "dn"}">${v > 0 ? "▲" : "▼"} ${Math.abs(v).toFixed(Number.isInteger(v) ? 0 : 1)}${unit}</span>`;
+}
+const trackedSet = (r) => new Set((r.tracking?.layers || []).flatMap((l) => l.prompts.map((p) => p.text)));
+
+function aiSections(r) {
+  const t = r.tracking;
+  let h = `<section class="sec"><div class="sec-head"><h2>AI 平台表現</h2><p>${t
+    ? `每週把 ${t.layers.reduce((n, l) => n + l.count, 0)} 題追蹤題目送到各 AI 平台，統計回答中提到「${esc(t.brand)}」與引用官網的比例。統計期間 ${fmtDate(new Date(t.period.from))} – ${fmtDate(new Date(t.period.to))}，共 ${t.period.runs} 輪${t.period.hasPrev ? "，變化與前 30 天比較" : "；累積滿 30 天後會顯示與上期的變化"}。`
+    : "把固定題目定期送到各 AI 平台，統計品牌被提及與官網被引用的比例。"}</p></div>`;
+  if (t && t.platforms.length) {
+    const o = t.overall;
+    h += `<div class="grid g4">
+      <div class="panel tile"><span class="l">品牌提及率</span><span class="v num">${fp(o.mentionRate)}</span><span class="s">${dchip(o.delta.mentionRate)} 共 ${o.responses} 則回答</span></div>
+      <div class="panel tile"><span class="l">聲量佔比</span><span class="v num">${fp(o.sov)}</span><span class="s">${dchip(o.delta.sov)} 在 ${o.brandCount} 個品牌中</span></div>
+      <div class="panel tile"><span class="l">官網引用率</span><span class="v num">${fp(o.citedRate)}</span><span class="s">${dchip(o.delta.citedRate)} 回答引用官網</span></div>
+      <div class="panel tile"><span class="l">整體排名</span><span class="v num">${o.rank ? "第 " + o.rank + " 名" : "—"}</span><span class="s">${o.leader ? esc(o.leader) + " 提及最多" : "尚無品牌被提及"}</span></div></div>`;
+    h += `<div class="pcards" style="--n:${Math.min(t.platforms.length, 4)}">${t.platforms.map((p) => `<div class="pcard" style="--pc:${PCOLOR[p.id] || "var(--accent)"}"><h3><i></i>${esc(p.name)}</h3>
+      ${p.responses ? `<div class="kv"><span>回應數（本期）</span><b>${p.responses}</b><span></span></div>
+      <div class="kv"><span>品牌提及率</span><b>${fp(p.mentionRate)}</b>${dchip(p.delta.mentionRate)}</div>
+      <div class="kv"><span>聲量佔比</span><b>${fp(p.sov)}</b>${dchip(p.delta.sov)}</div>
+      <div class="kv"><span>官網引用率</span><b>${fp(p.citedRate)}</b>${dchip(p.delta.citedRate)}</div>
+      <div class="kv"><span>${p.brandCount} 品牌排名</span><b>${p.rank ? "第 " + p.rank + " 名" : "未上榜"}</b>${dchip(p.delta.rank, " 名")}</div>
+      <div class="lead">${p.rank === 1 ? esc(t.brand) + " 領先" : p.leader ? esc(p.leader) + " 領先" : "尚無品牌被提及"}</div>`
+      : `<p class="muted" style="font-size:13.5px">這一期沒有成功的回應，請檢查 API key 或額度。</p>`}</div>`).join("")}</div>`;
+    if (t.errors.length) h += `<div class="empty noprint">最近一輪有錯誤：${t.errors.map(esc).join("；")}</div>`;
+  }
+  h += trackingSetup(r);
+  h += `<div class="panel"><h3 style="margin-bottom:10px">AI 爬蟲存取狀態（robots.txt）</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${r.crawl.aiBots.map((b) => `<span class="chip ${b.blocked ? "crit" : "good"}">${esc(b.bot)} ${b.blocked ? "被封鎖" : "可讀取"}</span>`).join("")}</div>
+      <p class="muted" style="font-size:13.5px;margin-top:10px">llms.txt：${r.crawl.llmsTxt ? "已提供" : "尚未提供"}　·　sitemap：${r.crawl.sitemapFound ? "已提供" : "找不到"}</p></div></section>`;
+
+  if (t && t.layers.length) {
+    const total = t.layers.reduce((n, l) => n + l.count, 0);
+    h += `<section class="sec"><div class="sec-head"><h2>${total} 題逐題表現</h2><p>依客戶決策階段分層，看哪些問題 AI 已經會提到品牌、哪些還是空白。</p></div>
+      <div class="panel" style="display:flex;gap:10px 22px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)">
+        <span><span class="chip good">N/M 提及</span> 提到品牌的回答數／總回答數</span><span><span class="chip acc">提及率</span> 該題品牌被提及的比例</span>
+        <span>${dchip(1)} 與上期相比的百分點變化</span><span><span class="chip cite">✓ 官網被引用</span> 官網被 AI 列為資料來源</span></div>`;
+    for (const l of t.layers.slice().reverse()) {
+      h += `<div class="layer"><div class="panel layer-hd"><span class="lbadge">${l.id}</span><h3>${esc(l.label)}</h3><span class="muted num">${l.count} 題</span></div>
+        <div class="lstats"><span>層級提及率 <b>${fp(l.rate)}</b> ${dchip(l.delta)}</span><span>有被提及 <b>${l.mentionedPrompts}</b> / ${l.count} 題</span><span>官網有被引用 <b>${l.citedPrompts}</b> / ${l.count} 題</span></div>
+        ${l.prompts.map((p) => `<div class="qrow"><span class="q">${esc(p.text)}</span><span class="tags">
+          <span class="chip ${p.mentioned ? "good" : "crit"} num">${p.mentioned}/${p.total} 提及</span><span class="chip acc num">提及率 ${fp(p.rate)}</span>${dchip(p.delta)}
+          <span class="chip ${p.cited ? "cite" : ""}">${p.cited ? "✓ 官網被引用 " + p.cited + " 次" : "⊘ 官網未被引用"}</span></span></div>`).join("")}</div>`;
+    }
+    h += `</section>`;
+  }
+  return h;
+}
+
+function trackingSetup(r) {
+  const ps = r.promptSet, pv = r.providers || [];
+  const on = pv.filter((p) => p.enabled);
+  return `<div class="panel setup noprint"><h3>AI 平台追蹤設定</h3>
+    <div class="row">${pv.map((p) => `<span class="chip ${p.enabled ? "good" : ""}">${esc(p.name)} ${p.enabled ? "已設定" : "未設定 key"}</span>`).join("")}</div>
+    <p class="muted" style="font-size:13.5px">${ps
+      ? `追蹤題目：${ps.count} 題，品牌「${esc(ps.brand)}」。要修改題目、品牌別名或競品，請編輯 <code>${esc(ps.file)}</code>。${ps.placeholder ? "<b style='color:var(--warn)'>題目還有範本文字，請先改寫。</b>" : ""}`
+      : "還沒有追蹤題目。可以請 Claude 依網站內容產生 30 題，再自行修改。"}</p>
+    <div class="row"><button class="btn2" type="button" data-act="prompts">${ps ? "重新產生追蹤題目" : "產生追蹤題目"}</button>
+      <button class="btn2" type="button" data-act="track" ${ps && on.length ? "" : "disabled"}>立即執行一輪追蹤</button>
+      <span class="muted" style="font-size:13px">${on.length ? `每輪約 ${(ps?.count || 30) * on.length} 次 AI 呼叫` : "請先在 .env 設定至少一個平台的 API key"}</span></div></div>`;
+}
+
+const LEVEL = { 緊急: 0, 近期: 1, 觀察: 2 }, EFFORT = { 小: 0, 中: 1, 大: 2 };
+function prioritySection(r) {
+  const rows = [...(r.priorities || []), ...(r.tracking?.gaps || [])].sort((a, b) => LEVEL[a.level] - LEVEL[b.level] || EFFORT[a.effort] - EFFORT[b.effort]);
+  if (!rows.length) return "";
+  return `<section class="sec"><div class="sec-head"><h2>優先修復清單</h2><p>依急迫程度與改動量排序。緊急項目建議一週內處理。</p></div>
+    <div class="panel tw"><table><thead><tr><th>#</th><th>項目</th><th>級別</th><th>改動量</th><th>對應的 AI 疑慮／缺口</th></tr></thead><tbody>
+    ${rows.map((x, i) => `<tr><td class="num muted">${i + 1}</td><td style="min-width:240px">${esc(x.item)}</td><td><span class="lvl ${x.level === "緊急" ? "urgent" : ""}">${esc(x.level)}</span></td><td>${esc(x.effort)}</td><td class="muted" style="min-width:200px">${esc(x.gap || "—")}</td></tr>`).join("")}
+    </tbody></table></div></section>`;
+}
+
+// 共用的工作輪詢
+async function runJob(url, body, startMsg) {
   const note = $("#notice");
   note.classList.remove("err");
-  $("#go").disabled = true;
+  document.querySelectorAll(".btn,[data-act]").forEach((b) => (b.disabled = true));
   $("#progress").hidden = false;
   $("#barfill").style.width = "3%";
   try {
-    const r = await fetch("/api/scan", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, competitors, maxPages: Number($("#maxPages").value) }) });
+    const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     const { id, error } = await r.json();
-    if (!id) throw new Error(error || "無法開始檢測");
-    note.textContent = "檢測進行中，請保持這個頁面開啟。";
+    if (!id) throw new Error(error || "無法開始");
+    note.textContent = startMsg;
     while (true) {
       await new Promise((ok) => setTimeout(ok, 1200));
       const j = await (await fetch("/api/job?id=" + id)).json();
-      if (j.status === "done") { renderReport(j.result); note.textContent = "檢測完成，結果已存檔。"; break; }
+      if (j.status === "done") return j.result;
       if (j.status === "error" || j.error) throw new Error(j.error);
       const p = j.progress || {};
       $("#ptext").textContent = p.total ? `${p.step} ${p.done} / ${p.total}` : p.step;
-      const base = { "讀取 sitemap": 5, "爬取頁面": 10, "測量載入速度": 62, "AI 內容評估": 70, "產生總評與建議": 88 }[p.step] ?? 92;
-      $("#barfill").style.width = (p.step === "爬取頁面" && p.total ? 10 + 50 * p.done / p.total : p.step === "AI 內容評估" && p.total ? 70 + 18 * p.done / p.total : base) + "%";
+      const base = { "讀取 sitemap": 5, "爬取頁面": 10, "重測回應時間": 58, "測量載入速度": 62, "AI 內容評估": 70, "產生總評與建議": 88 }[p.step] ?? 50;
+      $("#barfill").style.width = (p.step === "爬取頁面" && p.total ? 10 + 48 * p.done / p.total : p.step === "AI 內容評估" && p.total ? 70 + 18 * p.done / p.total : p.total ? 5 + 90 * p.done / p.total : base) + "%";
     }
   } catch (err) {
-    note.textContent = "檢測失敗：" + err.message;
+    note.textContent = "失敗：" + err.message;
     note.classList.add("err");
+    return null;
   } finally {
-    $("#go").disabled = false;
+    document.querySelectorAll(".btn,[data-act]").forEach((b) => (b.disabled = false));
     $("#progress").hidden = true;
   }
+}
+
+async function trackAction(act) {
+  if (!current) return;
+  const host = current.target.host;
+  const info = act === "prompts"
+    ? await runJob("/api/prompts", { host }, "Claude 正在產生追蹤題目，約需 1 分鐘。")
+    : await runJob("/api/track", { host }, "正在把題目送到各 AI 平台，約需數分鐘，請保持頁面開啟。");
+  if (info) {
+    Object.assign(current, info);
+    renderReport(current);
+    $("#notice").textContent = act === "prompts" ? "追蹤題目已產生，請檢查題目後再執行追蹤。" : "追蹤完成，結果已存檔。";
+  }
+}
+
+// 檢測流程
+$("#sform").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const r = await runJob("/api/scan", {
+    url: $("#url").value.trim(),
+    competitors: $("#competitors").value.split(/[,，\s]+/).filter(Boolean),
+    maxPages: Number($("#maxPages").value),
+  }, "檢測進行中，請保持這個頁面開啟。");
+  if (r) { renderReport(r); $("#notice").textContent = "檢測完成，結果已存檔。"; }
 });
 
 $("#pdfbtn").addEventListener("click", () => window.print());
