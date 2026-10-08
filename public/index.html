@@ -362,7 +362,7 @@ function renderReport(r) {
   let h = "";
   h += `<div class="target"><span class="chip acc">檢測對象</span><span class="dom">${esc(r.target.host)}</span>
     <span class="num muted" style="font-size:13px">爬取 ${r.crawl.pagesCrawled} 頁 · sitemap ${r.crawl.sitemapUrls} 筆 · 耗時 ${Math.round(r.durationMs / 1000)} 秒</span>
-    ${STATIC ? "" : r.llm.used ? `<span class="chip good">Claude 內容評估已啟用</span>` : `<span class="chip warn" title="${esc(r.llm.error)}">Claude 未啟用，內容分數為規則判斷</span>`}</div>`;
+    ${STATIC || MODE === "public" || (!r.llm.error && !r.llm.used) ? "" : r.llm.used ? `<span class="chip good">Claude 內容評估已啟用</span>` : `<span class="chip warn" title="${esc(r.llm.error)}">Claude 未啟用，內容分數為規則判斷</span>`}</div>`;
 
   // 總分
   h += `<section class="sec"><div class="sec-head"><h2>整體 GEO 分數</h2><p>綜合技術 SEO、內容結構、結構化資料、權威訊號與 AI 可引用性，滿分 100。</p></div>
@@ -490,7 +490,9 @@ function trend(hist) {
 
 
 // GitHub Pages 上的靜態報告：沒有後端，只讀 data/*.json
-const STATIC = document.querySelector('meta[name="geo-mode"]')?.content === "static";
+const MODE = document.querySelector('meta[name="geo-mode"]')?.content || "local";
+const STATIC = MODE === "static";
+const API = document.querySelector('meta[name="geo-api"]')?.content || "/api";
 
 const PCOLOR = { aio: "var(--p-aio)", chatgpt: "var(--p-chatgpt)", gemini: "var(--p-gemini)", claude: "var(--p-claude)" };
 const fp = (v) => (v == null ? "—" : Math.round(v) + "%");
@@ -547,7 +549,7 @@ function aiSections(r) {
 }
 
 function trackingSetup(r) {
-  if (STATIC) return "";
+  if (STATIC || !r.providers) return "";
   const ps = r.promptSet, pv = r.providers || [];
   const on = pv.filter((p) => p.enabled);
   return `<div class="panel setup noprint"><h3>AI 平台追蹤設定</h3>
@@ -631,7 +633,7 @@ async function finishLoading(stages) {
 
 // 各種工作的關卡，以及伺服器進度訊息對應到哪一關
 const SCAN_STAGES = (withComp) => [
-  { label: "連線網站", steps: ["開始"] },
+  { label: "連線網站", steps: ["開始", "排隊中"] },
   { label: "讀取 robots.txt 與 sitemap", steps: ["讀取 sitemap"] },
   { label: "爬取全站頁面", steps: ["爬取頁面", "重測回應時間"] },
   { label: "測量載入速度", steps: ["測量載入速度"] },
@@ -652,13 +654,13 @@ async function runJob(url, body, host, stages, eyebrow) {
   let idx = 0;
   while (true) {
     await new Promise((ok) => setTimeout(ok, 1000));
-    const j = await (await fetch("/api/job?id=" + id)).json();
+    const j = await (await fetch(API + "/job?id=" + id)).json();
     if (j.status === "done") { await finishLoading(stages); return j.result; }
     if (j.status === "error" || j.error) throw new Error(j.error || "工作失敗");
     const p = j.progress || {};
     const k = stageOf(stages, p.step);
     if (k > idx) idx = k;
-    setLoading(stages, idx, p.total ? p.done / p.total : 0.3, p.total ? `${p.step} ${p.done} / ${p.total}` : p.step || "處理中");
+    setLoading(stages, idx, p.total ? p.done / p.total : 0.3, p.detail ? `${p.step}：${p.detail}` : p.total ? `${p.step} ${p.done} / ${p.total}` : p.step || "處理中");
   }
 }
 
@@ -703,8 +705,8 @@ async function trackAction(act) {
   const host = keep.target.host;
   try {
     const info = act === "prompts"
-      ? await runJob("/api/prompts", { host }, host, PROMPT_STAGES, "GENERATING PROMPTS")
-      : await runJob("/api/track", { host }, host, TRACK_STAGES, "ASKING AI PLATFORMS");
+      ? await runJob(API + "/prompts", { host }, host, PROMPT_STAGES, "GENERATING PROMPTS")
+      : await runJob(API + "/track", { host }, host, TRACK_STAGES, "ASKING AI PLATFORMS");
     Object.assign(keep, info);
     presentReport(keep, act === "prompts" ? "追蹤題目已產生，請檢查題目後再執行追蹤。" : "追蹤完成，結果已存檔。");
   } catch (err) {
@@ -745,7 +747,7 @@ $("#sform").addEventListener("submit", async (e) => {
   if (STATIC) return openStatic(url);
   const competitors = $("#competitors").value.split(/[,，\s]+/).filter(Boolean);
   try {
-    const r = await runJob("/api/scan", { url, competitors, maxPages: Number($("#maxPages").value) }, hostFrom(url), SCAN_STAGES(competitors.length > 0), "NOW LOADING");
+    const r = await runJob(API + "/scan", { url, competitors, maxPages: Number($("#maxPages").value) }, hostFrom(url), SCAN_STAGES(competitors.length > 0), "NOW LOADING");
     presentReport(r);
   } catch (err) {
     backToStart("檢測失敗：" + err.message, true);
@@ -769,6 +771,8 @@ document.querySelectorAll(".themebtn").forEach((b) => b.addEventListener("click"
 
 // ── 啟動：一律從開始畫面進入，不帶出先前的網址或報告 ──
 drawRunner();
+if (MODE === "public") $("#adv").hidden = true;
+if (MODE === "admin") $(".eyebrow").textContent = "GEO MONITOR · ADMIN";
 if (STATIC) {
   $("#lead").textContent = "輸入網址，查看網站的技術 SEO 與 GEO 檢測報告。";
   $("#adv").hidden = true;

@@ -61,7 +61,11 @@ npm run scan -- https://www.example.com
 npm run publish:site
 ```
 
-`publish:site` 會把 `data/` 內每個網站最新的結果匯出到 `docs/`，然後 commit 並推上 GitHub，前台約 1 分鐘後更新。前台網址可以加 `#網域` 直接開某個網站，例如 `#www.sitevance.tw`。
+`publish:site` 只會更新前台已經有的網站，然後 commit 並推上 GitHub，前台約 1 分鐘後更新。要把新網站放上前台，請明確指定（repo 是公開的，放上去任何人都看得到）：
+
+```bash
+npm run publish:site -- www.example.com
+```前台網址可以加 `#網域` 直接開某個網站，例如 `#www.sitevance.tw`。
 
 ## AI 平台追蹤
 

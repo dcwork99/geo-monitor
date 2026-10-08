@@ -20,7 +20,7 @@ async function analyzeSite(url, { maxPages, llmPages, psiPages, onProgress, with
   const perf = await Promise.all(perfTargets.map(pagespeed));
 
   let pageEvals = [];
-  let llm = { used: false, model: MODEL, error: llmEnabled() ? "" : "未設定 ANTHROPIC_API_KEY，內容評分僅使用規則判斷" };
+  let llm = { used: false, model: MODEL, error: llmPages === 0 || llmEnabled() ? "" : "未設定 ANTHROPIC_API_KEY，內容評分僅使用規則判斷" };
   if (llmEnabled() && llmPages > 0) {
     pageEvals = await evaluatePages(pickKeyPages(c, llmPages), onProgress);
     const ok = pageEvals.filter((p) => !p.error);
@@ -39,15 +39,15 @@ async function analyzeSite(url, { maxPages, llmPages, psiPages, onProgress, with
   return { c, perf, issues, geo, scores, pageEvals, llm, site };
 }
 
-export async function runScan(url, { maxPages = 100, competitors = [], onProgress = () => {} } = {}) {
+export async function runScan(url, { maxPages = 100, competitors = [], onProgress = () => {}, useLLM = true } = {}) {
   const startedAt = new Date().toISOString();
-  const main = await analyzeSite(url, { maxPages, llmPages: 8, psiPages: 3, onProgress, withSiteEval: true });
+  const main = await analyzeSite(url, { maxPages, llmPages: useLLM ? 8 : 0, psiPages: 3, onProgress, withSiteEval: useLLM });
 
   const comp = [];
   for (const cu of competitors.slice(0, 3)) {
     onProgress({ step: `分析競品 ${cu}` });
     try {
-      const r = await analyzeSite(cu, { maxPages: Math.min(40, maxPages), llmPages: 3, psiPages: 1, onProgress: () => {}, withSiteEval: false });
+      const r = await analyzeSite(cu, { maxPages: Math.min(40, maxPages), llmPages: useLLM ? 3 : 0, psiPages: 1, onProgress: () => {}, withSiteEval: false });
       comp.push({ host: r.c.host, scores: r.scores, pages: r.c.pages.length, issues: r.issues.reduce((n, i) => n + i.count, 0),
         schemaTypes: [...new Set(r.c.pages.flatMap((p) => p.schemaTypes || []))].slice(0, 10), llmsTxt: r.c.llmsTxt, aiBlocked: r.c.aiBots.filter((b) => b.blocked).length });
     } catch (e) {

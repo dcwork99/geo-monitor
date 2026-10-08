@@ -7,7 +7,7 @@
     "scan": "node scan.js",
     "track": "node track.js",
     "export": "node export.js",
-    "publish:site": "node export.js && git add docs && (git diff --cached --quiet || git commit -m '更新前台報告') && git push"
+    "publish:site": "node export.js --push"
   },
   "license": "ISC",
   "type": "module",
