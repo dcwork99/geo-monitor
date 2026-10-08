@@ -695,7 +695,9 @@ function backToStart(msg = "", isErr = false) {
   $("#url").focus();
 }
 
-const hostFrom = (v) => v.trim().replace(/^https?:\/\//i, "").split(/[\/?#]/)[0].toLowerCase();
+// 修正常見打錯：中文輸入法的逗號、句號、全形字與空白
+const cleanUrl = (v) => v.trim().normalize("NFKC").replace(/[,，。、]/g, ".").replace(/\s+/g, "");
+const hostFrom = (v) => cleanUrl(v).replace(/^https?:\/\//i, "").split(/[\/?#]/)[0].toLowerCase();
 
 async function trackAction(act) {
   if (!current) return;
@@ -718,7 +720,7 @@ async function openStatic(input) {
   const host = hostFrom(input);
   const stages = [{ label: "尋找報告" }, { label: "讀取檢測資料" }, { label: "繪製報告" }];
   const site = staticIndex?.sites.find((x) => x.host === host || x.host === "www." + host || "www." + x.host === host);
-  if (!site) return backToStart(`還沒有 ${host} 的檢測報告。`, true);
+  if (!site) return backToStart(`還沒有 ${host} 的檢測報告。目前可查看：${staticIndex?.sites.map((x) => x.host).join("、") || "無"}。`, true);
   startLoading(site.host, stages, "LOADING REPORT");
   const pause = (ms) => new Promise((ok) => setTimeout(ok, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : ms));
   await pause(350);
@@ -735,8 +737,13 @@ async function openStatic(input) {
 // ── 事件 ──
 $("#sform").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const url = $("#url").value.trim();
+  const url = cleanUrl($("#url").value);
   if (!url) return;
+  if (!/^[^.\s]+(\.[^.\s]+)+/.test(hostFrom(url))) {
+    $("#notice").textContent = "網址格式不正確，請輸入像 www.example.com 的網址。";
+    $("#notice").classList.add("err");
+    return;
+  }
   if (STATIC) return openStatic(url);
   const competitors = $("#competitors").value.split(/[,，\s]+/).filter(Boolean);
   try {
