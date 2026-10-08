@@ -5,35 +5,44 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GEO 技術監測系統</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
-/* 版面：搜尋列 → 總分 → 技術問題 → GEO 內容 → 競品 → AI 引用 → Prompts → 追蹤；單欄報告式 */
+/* 版面：搜尋列 → 總分 → AI 平台 → 修復清單 → 技術問題 → GEO → 競品 → 追蹤；單欄報告式
+   風格：復古電玩。淺色＝紅白機（灰白機身、黑框、紅鍵），深色＝街機 CRT（深靛螢幕、投幣黃、掃描線） */
+@font-face{font-family:"Cubic 11";src:url("https://cdn.jsdelivr.net/gh/ACh-K/Cubic-11@1.500/fonts/web/Cubic_11.woff2") format("woff2");font-display:swap}
 :root{
-  --bg:#EEF2F5; --surface:#FFFFFF; --surface2:#F5F8FA; --ink:#13202B; --muted:#5A6B79; --line:#D8E0E6;
-  --accent:#0B6E8E; --accent-soft:#DCEFF5; --on-accent:#FFFFFF;
-  --crit:#C23A2E; --crit-soft:#F9E3E0; --warn:#A8660B; --warn-soft:#FBEBD0; --info:#456A86; --info-soft:#E3ECF3; --good:#1E7F55; --good-soft:#DDF1E7;
-  --comp:#8A97A3;
-  --p-aio:#3B6FD8; --p-chatgpt:#10A37F; --p-gemini:#7B5BD6; --p-claude:#C6613F;
+  --bg:#E4E1D8; --surface:#F7F5EF; --surface2:#ECE9DF; --ink:#1C1B22; --muted:#5C5966; --line:#C9C4B6;
+  --frame:#1C1B22; --shadow:#1C1B22; --scan:rgba(28,27,34,.035);
+  --accent:#C8322B; --accent-soft:#F6DCD6; --on-accent:#FFFFFF;
+  --crit:#C8322B; --crit-soft:#F6DCD6; --warn:#B4620A; --warn-soft:#F8E5C8; --info:#2D5C9A; --info-soft:#DCE6F4; --good:#257A3E; --good-soft:#D6EDD9;
+  --comp:#8D8999;
+  --p-aio:#2D5C9A; --p-chatgpt:#1F8A63; --p-gemini:#6B48C4; --p-claude:#C25A2E;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
-  --f-disp:"Noto Serif TC","Songti TC",serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --f-disp:"Cubic 11","DotGothic16","Noto Sans TC",sans-serif;
+  --f-mono:"DotGothic16","Cubic 11",ui-monospace,Menlo,monospace;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0E161D; --surface:#16212A; --surface2:#1B2833; --ink:#E6EEF3; --muted:#93A5B3; --line:#2B3B48;
-  --accent:#4FB7D6; --accent-soft:#17323D; --on-accent:#06222C;
-  --crit:#F0736A; --crit-soft:#3B1F1F; --warn:#E3A24B; --warn-soft:#3A2E17; --info:#8FB3CC; --info-soft:#1C2E3B; --good:#5CC795; --good-soft:#173528;
-  --comp:#6F7F8C; --p-aio:#7BA2F0; --p-chatgpt:#3CC79F; --p-gemini:#A78BF0; --p-claude:#E38B67; color-scheme:dark}}
+  --bg:#14112B; --surface:#1E1A3D; --surface2:#28234F; --ink:#F3EFD9; --muted:#A9A3C9; --line:#3A3468;
+  --frame:#8F86D6; --shadow:#07061A; --scan:rgba(0,0,0,.28);
+  --accent:#FFCE3A; --accent-soft:#3A3220; --on-accent:#14112B;
+  --crit:#FF5E6C; --crit-soft:#43192A; --warn:#FFA43A; --warn-soft:#41291A; --info:#5FD3F3; --info-soft:#173A4E; --good:#5BE38C; --good-soft:#173D2D;
+  --comp:#6E6896; --p-aio:#5FA8FF; --p-chatgpt:#4BE0A6; --p-gemini:#B58CFF; --p-claude:#FF9566; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E161D; --surface:#16212A; --surface2:#1B2833; --ink:#E6EEF3; --muted:#93A5B3; --line:#2B3B48;
-  --accent:#4FB7D6; --accent-soft:#17323D; --on-accent:#06222C;
-  --crit:#F0736A; --crit-soft:#3B1F1F; --warn:#E3A24B; --warn-soft:#3A2E17; --info:#8FB3CC; --info-soft:#1C2E3B; --good:#5CC795; --good-soft:#173528;
-  --comp:#6F7F8C; --p-aio:#7BA2F0; --p-chatgpt:#3CC79F; --p-gemini:#A78BF0; --p-claude:#E38B67; color-scheme:dark}
+  --bg:#14112B; --surface:#1E1A3D; --surface2:#28234F; --ink:#F3EFD9; --muted:#A9A3C9; --line:#3A3468;
+  --frame:#8F86D6; --shadow:#07061A; --scan:rgba(0,0,0,.28);
+  --accent:#FFCE3A; --accent-soft:#3A3220; --on-accent:#14112B;
+  --crit:#FF5E6C; --crit-soft:#43192A; --warn:#FFA43A; --warn-soft:#41291A; --info:#5FD3F3; --info-soft:#173A4E; --good:#5BE38C; --good-soft:#173D2D;
+  --comp:#6E6896; --p-aio:#5FA8FF; --p-chatgpt:#4BE0A6; --p-gemini:#B58CFF; --p-claude:#FF9566; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65;padding-inline:16px;padding-block:20px 56px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.wrap>*,.sec>*,.layer>*{min-width:0}
+#report{width:100%}
+code{word-break:break-all;overflow-wrap:anywhere}
+.empty,.notice,.pcard p{overflow-wrap:anywhere}
 h1,h2,h3,p{margin:0}
 h2{font-family:var(--f-disp);font-weight:900;font-size:22px;line-height:1.3;text-wrap:balance}
 h3{font-size:15px;font-weight:700}
@@ -181,6 +190,45 @@ svg.lc .gl{stroke:var(--line);stroke-width:1}
   .panel,.geo-item,tr,.peval{break-inside:avoid}
 }
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+/* ── 復古電玩外觀 ── */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,var(--scan) 0 2px,transparent 2px 4px)}
+h2{font-family:var(--f-disp);font-weight:400;font-size:22px;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:12px;height:12px;flex:none;background:var(--accent);clip-path:polygon(0 0,100% 50%,0 100%)}
+h3{font-family:var(--f-disp);font-weight:400;font-size:16.5px;letter-spacing:.03em}
+.brand{font-family:var(--f-disp);font-weight:400;font-size:22px;letter-spacing:.06em;display:flex;align-items:center;gap:12px}
+.brand::after{content:"PLAYER 1";font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;padding:2px 8px;border:2px solid var(--frame);color:var(--accent);background:var(--surface)}
+.panel,.pcard,.qrow,.empty{border-radius:0;border:3px solid var(--frame);box-shadow:5px 5px 0 var(--shadow)}
+.empty{border-style:dashed;box-shadow:none}
+.pcard{border-top:8px solid var(--pc,var(--accent))}
+.qrow{border-width:2px;box-shadow:3px 3px 0 var(--shadow)}
+input,select{border-radius:0;border:3px solid var(--frame);font-family:var(--f-mono);font-size:15px}
+input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn,.btn2,.filters button{font-family:var(--f-disp);font-weight:400;letter-spacing:.06em;border-radius:0;border:3px solid var(--frame);box-shadow:4px 4px 0 var(--shadow);transition:transform .05s,box-shadow .05s}
+.btn{background:var(--accent);color:var(--on-accent);font-size:16.5px}
+.btn2{background:var(--surface);font-size:13.5px}
+.filters button{border-width:2px;box-shadow:3px 3px 0 var(--shadow)}
+.btn:active:not(:disabled),.btn2:active:not(:disabled),.filters button:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--shadow)}
+.chip,.lvl,.d,.lbadge{border-radius:0;font-family:var(--f-mono);letter-spacing:.02em;border:2px solid currentColor}
+.d{padding:0 6px}
+.lbadge{border-color:var(--frame);font-family:var(--f-disp);font-weight:400}
+.t,.bar{height:16px;border-radius:0;border:2px solid var(--frame);background:var(--surface2);padding:2px}
+.t i,.bar i{-webkit-mask:repeating-linear-gradient(90deg,#000 0 8px,transparent 8px 11px);mask:repeating-linear-gradient(90deg,#000 0 8px,transparent 8px 11px)}
+.bl .t{height:14px;border-width:2px}
+.ring .val b{font-family:var(--f-disp);font-weight:400;font-size:55px}
+.ring .val span{font-family:var(--f-mono)}
+.tile .v{font-family:var(--f-disp);font-weight:400;font-size:33px}
+.tile .l,th,.when,.sitebar label{font-family:var(--f-mono);letter-spacing:.06em}
+.verdict{font-family:var(--f-disp);font-weight:400;font-size:22px;line-height:1.5}
+th{border-bottom:3px solid var(--frame);color:var(--ink)}
+td{border-bottom:2px dashed var(--line)}
+details summary{font-family:var(--f-mono)}
+.layer-hd h3{font-size:16.5px}
+.notice{font-family:var(--f-mono);font-size:14px}
+#ptext::after{content:"_";animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#ptext::after{animation:none}.btn,.btn2{transition:none}}
+@media print{body::after{display:none}.panel,.pcard,.qrow{box-shadow:none}}
 </style>
 </head>
 <body>
@@ -258,7 +306,7 @@ function renderReport(r) {
   h += `<section class="sec"><div class="sec-head"><h2>整體 GEO 分數</h2><p>綜合技術 SEO、內容結構、結構化資料、權威訊號與 AI 可引用性，滿分 100。</p></div>
   <div class="panel hero">
     <div class="ring" role="img" aria-label="整體 GEO 分數 ${r.scores.overall} 分">
-      <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface2)" stroke-width="10"/><circle cx="60" cy="60" r="54" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${(C * r.scores.overall / 100).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 60 60)"/></svg>
+      <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface2)" stroke-width="10"/><circle cx="60" cy="60" r="54" fill="none" stroke="var(--accent)" stroke-width="10" stroke-dasharray="${(C * r.scores.overall / 100).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 60 60)"/><circle cx="60" cy="60" r="54" fill="none" stroke="var(--surface)" stroke-width="12" stroke-dasharray="2.4 7.025" transform="rotate(-90 60 60)"/></svg>
       <div class="val"><b class="num">${r.scores.overall}</b><span>/ 100 · ${grade(r.scores.overall)}</span></div>
     </div>
     <div class="hero-r">
